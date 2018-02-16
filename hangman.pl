@@ -2,46 +2,53 @@ use strict;
 use warnings;
 use Switch;
 
-my ($letter, $word_size, $array_size);
+my ($letter, $word_size, $array_size, $temp_word, $error_count, $is_correct, $solution);
 my (@indexes, @letterAnimate);
-my $error_count = 1;
-my $is_correct = 1; # main variable to decide about end of the game
+my $continue = "T";
 
-print("Hello! Let me choose a word for you.");
-<stdin>;
-my $solution = my $temp_word = Random_Word();
-$word_size = length $solution;
+while ($continue =~ m/y|t/i) {
+    $error_count = 1;
+    $is_correct = 1; # main variable to decide about end of the game
+    @letterAnimate = '';
 
-for(my $j = 0; $j < $word_size; $j++) { # prepare illustration of hide word
-    $letterAnimate[$j] = "[ * ]";}
+    print("Hello! Let me choose a word for you.");
+    <stdin>;
+    $solution = $temp_word = Random_Word();
+    $word_size = length $solution;
 
-print("Great! Your word has $word_size signs.\n");
+    for(my $j = 0; $j < $word_size; $j++) { # prepare illustration of hide word
+        $letterAnimate[$j] = "[ * ]";}
 
-do {
-    CheckEnding();
-    if ($error_count <= 6 and $is_correct != 0) {
-        print("\nGive one letter that you suppose to be in word... ");
-        chomp($letter = <>);
-        $letter = lc substr($letter, 0, 1); # secure if user type more than one sign
-        @indexes = SearchLetter();
-        $array_size = @indexes; # check if SearchLetter function found a letter in the word
+    print("Great! Your word has $word_size signs.\n");
 
-        if ($array_size == 0) { # empty array -> no letter found
-            print("Nope. This letter has not appeared\n");
+    do {
+        CheckEnding();
+        if ($error_count <= 6 and $is_correct != 0) {
+            print("\nGive one letter that you suppose to be in word... ");
+            chomp($letter = <>);
+            $letter = lc substr($letter, 0, 1); # secure if user type more than one sign
+            @indexes = SearchLetter();
+            $array_size = @indexes; # check if SearchLetter function found a letter in the word
+
+            if ($array_size == 0) { # empty array -> no letter found
+                print("Nope. This letter has not appeared\n");
+                HangManAnimate();
+                SolutionAnimate();
+                $error_count += 1;} 
+            else { # success, letter was found in the word
+                print("Wonderful! Letter \'$letter\' appears $array_size time(s).\n");
+                SolutionAnimate();}}
+        elsif ($is_correct == 0) { # end game
+            print("\nCongratulations! You won absolutely nothing!");}
+        else {
+            print("Game over! Your word is: $solution\n");
             HangManAnimate();
-            SolutionAnimate();
-            $error_count += 1;} 
-        else { # success, letter was found in the word
-            print("Wonderful! Letter \'$letter\' appears $array_size time(s).\n");
-            SolutionAnimate();}}
-    elsif ($is_correct == 0) { # end game
-        print("Congratulations! You won absolutely nothing!");}
-    else {
-        print("Game over! Your word is: $solution\n");
-        HangManAnimate();
-        $is_correct = 0;}
+            $is_correct = 0;}
 
-} while ($is_correct > 0); 
+    } while ($is_correct > 0); 
+    print("Do you want to play again? [Y/N] ");
+    $continue = <>;
+}
 
 sub Random_Word {
     my $result;
